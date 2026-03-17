@@ -1,0 +1,747 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel — Haridwar University Result Portal - 50 Students</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root { 
+      --surface: #111827; 
+      --border: rgba(255,255,255,0.07); 
+      --primary: #f59e0b; 
+      --text: #f1f5f9; 
+      --muted: #94a3b8; 
+      --success: #10b981;
+      --danger: #ef4444;
+      --radius: 14px; 
+      --shadow: 0 10px 30px rgba(0,0,0,0.3); 
+    }
+    .page-wrap { max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .page-title { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; background: linear-gradient(135deg, var(--primary), #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; }
+    .page-sub { color: var(--muted); font-size: 1.2rem; margin-bottom: 2rem; }
+    .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 2rem; }
+    .admin-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; }
+    .stat-card { text-align: center; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+    .stat-number { font-size: 2.5rem; font-weight: 700; }
+    .stat-total { color: var(--primary); }
+    .stat-pass { color: var(--success); }
+    .stat-fail { color: var(--danger); }
+    .students-table { width:100%; border-collapse:collapse; font-size:0.9rem; margin-top: 1rem; }
+    .students-table th { 
+      text-align:left; 
+      font-size:0.75rem; 
+      font-weight:600; 
+      color:var(--muted); 
+      text-transform:uppercase; 
+      padding:12px 16px; 
+      border-bottom:2px solid var(--border); 
+      position: sticky; top: 0; background: var(--surface); 
+    }
+    .students-table td { padding:14px 16px; border-bottom:1px solid var(--border); }
+    .students-table tr:hover { background: rgba(255,255,255,0.03); }
+    .tbl-wrap { max-height: 70vh; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); }
+    .summary-row { cursor: pointer; transition: all 0.2s; font-weight: 500; }
+    .summary-row:hover { background: rgba(245,158,11,0.1) !important; }
+    .status-pass { color: var(--success); font-weight: bold; }
+    .status-fail { color: var(--danger); font-weight: bold; }
+    .details-row { background: rgba(255,255,255,0.02); }
+    .marks-table { width: 100%; font-size: 0.85rem; margin: 12px 0; }
+    .marks-table th, .marks-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .marks-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+    .loading { text-align: center; padding: 4rem; color: var(--muted); }
+    .loading::after { content: ''; display: inline-block; width: 24px; height: 24px; border: 3px solid var(--border); border-top: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-left: 12px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .search-box { margin-bottom: 2rem; }
+    .search-input { width: 100%; padding: 14px 20px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font-size: 1rem; }
+    /* Password Modal */
+    .password-modal { 
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+      background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; 
+      z-index: 10000; backdrop-filter: blur(8px);
+    }
+    .password-card { 
+      background: var(--surface); border-radius: var(--radius); padding: 40px; 
+      box-shadow: var(--shadow); text-align: center; max-width: 400px; width: 90%; 
+      border: 1px solid var(--border);
+    }
+    .password-input { width: 100%; padding: 16px 20px; border: 1px solid var(--border); border-radius: 10px; 
+      background: rgba(255,255,255,0.05); color: var(--text); font-size: 1.1rem; 
+      margin: 16px 0; text-align: center; letter-spacing: 2px; }
+    .password-input::placeholder { color: var(--muted); }
+    .btn-unlock { background: var(--primary); color: white; border: none; padding: 14px 32px; 
+      border-radius: 10px; font-size: 1.1rem; font-weight: 600; cursor: pointer; 
+      transition: all 0.2s; margin-top: 12px; }
+    .btn-unlock:hover { background: #d97706; transform: translateY(-1px); }
+    .main-content { display: none; }
+@media (max-width: 768px) { 
+      .admin-grid { grid-template-columns: 1fr; } 
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      /* Add Student Modal */
+      .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10001; backdrop-filter: blur(4px); }
+      .modal-card { background: var(--surface); border-radius: var(--radius); max-width: 600px; width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow); }
+      .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+      .modal-header h3 { margin: 0; color: var(--primary); font-family: var(--font-display); }
+      .modal-close { background: none; border: none; font-size: 1.5rem; color: var(--muted); cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s; }
+      .modal-close:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+      .form-group { margin-bottom: 18px; }
+      .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+      .form-group input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface2); color: var(--text); font-size: 0.95rem; }
+      .form-group input:focus { border-color: var(--primary); outline: none; }
+      .subjects-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+      .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+      .btn-submit { width: 100%; padding: 14px; background: var(--success); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+      .btn-submit:hover { background: #059669; transform: translateY(-1px); }
+      .btn-add-student { position: fixed; top: 120px; right: 2rem; background: var(--success); color: white; border: none; width: 56px; height: 56px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; box-shadow: var(--shadow); z-index: 100; transition: all 0.2s; }
+      .btn-add-student:hover { transform: scale(1.1); background: #059669; }
+      #message.success { color: var(--success); background: rgba(16,185,129,0.15); padding: 12px 20px; border-radius: 10px; margin: 1rem 0; }
+      #message.error { color: var(--danger); background: rgba(239,68,68,0.15); padding: 12px 20px; border-radius: 10px; margin: 1rem 0; }
+    }
+    .btn-add-student { 
+      position: fixed; top: 120px; right: 2rem; z-index: 100; 
+      background: linear-gradient(135deg, var(--success), #059669); color: white; 
+      border: none; width: 60px; height: 60px; border-radius: 50%; 
+      font-size: 1.6rem; font-weight: bold; cursor: pointer; 
+      box-shadow: 0 8px 24px rgba(16,185,129,0.4); transition: all 0.2s; 
+    }
+    .btn-add-student:hover { transform: scale(1.08) translateY(-2px); box-shadow: 0 12px 32px rgba(16,185,129,0.5); }
+    .btn-edit-small, .btn-delete-small { padding: 4px 8px; margin: 0 2px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .btn-edit-small { background: var(--primary); color: white; }
+    .btn-delete-small { background: var(--danger); color: white; }
+    .btn-edit-small:hover, .btn-delete-small:hover { opacity: 0.8; transform: scale(1.1); }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-blob blob1"></div>
+  <div class="bg-blob blob2"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">🎓</span>
+        <span class="logo-text">Haridwar University <span class="logo-accent">Result Portal</span></span>
+      </div>
+      <nav>
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="result.html" class="nav-link">Check Result</a>
+        <a href="admin.html" class="nav-link active">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Password Modal -->
+  <div id="passwordModal" class="password-modal">
+    <div class="password-card">
+      <h2 style="color: var(--primary); margin-bottom: 8px;">🔐 Admin Panel Access</h2>
+      <p style="color: var(--muted); margin-bottom: 24px;">Enter password to view all student</p>
+      <input type="password" id="adminPassword" class="password-input" placeholder="Enter password (hidden)" autocomplete="off">
+      <button onclick="checkPassword()" class="btn-unlock">Unlock Admin Panel</button>
+      <div id="passwordError" style="color: var(--danger); font-size: 0.9rem; margin-top: 12px; display: none;">❌ Incorrect password</div>
+    </div>
+  </div>
+
+  <!-- Main Content (hidden until unlocked) -->
+  <div id="mainContent" class="page-wrap main-content">
+    <h1 class="page-title">Admin Panel</h1>
+<p class="page-sub" id="pageSub">All BTech Final Semester Students - Complete Results</p>
+
+<button id="addStudentBtn" class="btn-add-student" onclick="openAddModal()" title="➕ Add New Student">
+  ➕ Add Student
+</button>
+
+    <div id="statsSection" style="display: none;">
+      <div class="admin-grid">
+        <div class="admin-card">
+          <h3>📊 Overall Statistics</h3>
+          <div id="stats" class="stats-grid"></div>
+        </div>
+        <div class="admin-card">
+          <h3>🔍 Quick Search</h3>
+          <input type="text" id="studentSearch" class="search-input" placeholder="Search by name or roll number...">
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-card" id="studentListContainer" style="display: none;">
+      <h3>📋 COMPLETE STUDENT LIST</h3>
+      <div id="studentList" class="tbl-wrap loading">Loading 50 students...</div>
+    </div>
+
+    <!-- Add & Edit Student Modals -->
+  <!-- Add Modal -->
+  <div id="addStudentModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>➕ Add New Student</h3>
+        <button class="modal-close" onclick="closeAddModal()">&times;</button>
+      </div>
+      <form id="addStudentForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Student Name *</label>
+            <input type="text" id="studentName" required placeholder="e.g. Jash">
+          </div>
+          <div class="form-group">
+            <label>Section *</label>
+            <select id="studentSection" required>
+              <option value="">Select</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Father Name *</label>
+          <input type="text" id="fatherName" required placeholder="e.g. jasni johi">
+        </div>
+        <div class="form-group">
+          <label>Roll Number * (Unique, e.g. 2024101)</label>
+          <input type="text" id="studentRoll" required pattern="2024[0-9]{3}" placeholder="2024101" maxlength="7">
+        </div>
+        <div class="subjects-grid">
+          <div class="form-group">
+            <label>1. Theory of Automata</label>
+            <input type="number" id="mark1" min="0" max="100" value="75">
+          </div>
+          <div class="form-group">
+            <label>2. Web Technology</label>
+            <input type="number" id="mark2" min="0" max="100" value="75">
+          </div>
+          <div class="form-group">
+            <label>3. Design Algorithm</label>
+            <input type="number" id="mark3" min="0" max="100" value="75">
+          </div>
+          <div class="form-group">
+            <label>4. Aptitude</label>
+            <input type="number" id="mark4" min="0" max="100" value="75">
+          </div>
+          <div class="form-group">
+            <label>5. Software Engineering</label>
+            <input type="number" id="mark5" min="0" max="100" value="75">
+          </div>
+          <div class="form-group">
+            <label>6. Python with ML</label>
+            <input type="number" id="mark6" min="0" max="100" value="75">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Total Marks</label>
+            <input type="text" id="totalMarks" readonly>
+          </div>
+          <div class="form-group">
+            <label>Percentage</label>
+            <input type="text" id="percentage" readonly>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">💾 Save Student</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="editStudentModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>✏️ Edit Student</h3>
+        <button class="modal-close" onclick="closeEditModal()">&times;</button>
+      </div>
+      <form id="editStudentForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Student Name *</label>
+            <input type="text" id="editStudentName" required>
+          </div>
+          <div class="form-group">
+            <label>Section *</label>
+            <select id="editStudentSection" required>
+              <option value="">Select</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Father Name</label>
+          <input type="text" id="editFatherName">
+        </div>
+        <div class="form-group">
+          <label>Roll Number</label>
+          <input type="text" id="editStudentRoll" readonly>
+        </div>
+        <div class="subjects-grid">
+          <div class="form-group">
+            <label>1. Theory of Automata</label>
+            <input type="number" id="editmark1" min="0" max="100">
+          </div>
+          <div class="form-group">
+            <label>2. Web Technology</label>
+            <input type="number" id="editmark2" min="0" max="100">
+          </div>
+          <div class="form-group">
+            <label>3. Design Algorithm</label>
+            <input type="number" id="editmark3" min="0" max="100">
+          </div>
+          <div class="form-group">
+            <label>4. Aptitude</label>
+            <input type="number" id="editmark4" min="0" max="100">
+          </div>
+          <div class="form-group">
+            <label>5. Software Engineering</label>
+            <input type="number" id="editmark5" min="0" max="100">
+          </div>
+          <div class="form-group">
+            <label>6. Python with ML</label>
+            <input type="number" id="editmark6" min="0" max="100">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Total Marks</label>
+            <input type="text" id="edittotalMarks" readonly>
+          </div>
+          <div class="form-group">
+            <label>Percentage</label>
+            <input type="text" id="editpercentage" readonly>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">💾 Update Student</button>
+      </form>
+    </div>
+  </div>
+
+    <div id="message"></div>
+  </div>
+
+  <!-- Load data.js first -->
+  <script src="data.js"></script>
+  <script>
+    let students = []; // Global for processed students
+    const ADMIN_PASSWORD = 'rtr@123';
+
+    function checkPassword() {
+      const input = document.getElementById('adminPassword').value;
+      const errorDiv = document.getElementById('passwordError');
+      
+      if (input === ADMIN_PASSWORD) {
+        document.getElementById('passwordModal').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        loadStudents(); // Load 50 students now
+      } else {
+        errorDiv.style.display = 'block';
+        document.getElementById('adminPassword').value = '';
+        setTimeout(() => errorDiv.style.display = 'none', 3000);
+      }
+    }
+
+    // Enter key support
+    document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') checkPassword();
+    });
+
+async function loadStudents() {
+      try {
+        // Load from localStorage first, fallback to data.js
+        let data = studentsData;
+        if (typeof(Storage) !== 'undefined' && localStorage.getItem('studentsData')) {
+          try {
+            data = JSON.parse(localStorage.getItem('studentsData'));
+          } catch (e) {
+            console.warn('localStorage parse failed, using data.js');
+          }
+        }
+
+        if (!data || data.length === 0) {
+          throw new Error('No students data available. Refresh page.');
+        }
+
+        students = [];
+        let totalPassed = 0;
+        const totalStudents = data.length;
+        console.log('Loaded data length:', data.length, 'Sample:', data[0]?.roll_no);
+
+        data.forEach((studentObj, index) => {
+          if (studentObj.exam_type !== 'Final') return; // Only Final exams
+
+          const roll = studentObj.roll_no;
+          const name = studentObj.name;
+          const section = studentObj.section;
+          
+          const subjectNodes = studentObj.subjects || [];
+          let totalObtained = 0;
+          let totalMax = 0;
+          const subjects = [];
+          let allPass = true;
+
+          subjectNodes.forEach(subObj => {
+            const marks = subObj.marks_obtained || 0;
+            const maxMarks = subObj.total_marks || 100;
+            const passMarks = subObj.pass_marks || 40;
+            
+            const pct = maxMarks > 0 ? ((marks / maxMarks) * 100).toFixed(1) : 0;
+            const pass = marks >= passMarks;
+            if (!pass) allPass = false;
+            
+            subjects.push({name: subObj.name, marks, maxMarks, passMarks, pct, pass});
+            totalObtained += marks;
+            totalMax += maxMarks;
+          });
+
+          const percentage = totalMax > 0 ? ((totalObtained / totalMax) * 100).toFixed(1) : 0;
+          if (allPass) totalPassed++;
+
+          students.push({
+            roll, name, section,
+            totalObtained, totalMax, percentage, allPass,
+            subjects,
+            id: index
+          });
+        });
+
+        // Update stats and table
+        document.getElementById('pageSub').textContent = `Loaded ${students.length} BTech Final Semester Students`;
+        updateStats(totalStudents, totalPassed, students.length);
+        renderStudentsTable(students);
+        
+        document.getElementById('statsSection').style.display = 'block';
+        document.getElementById('studentListContainer').style.display = 'block';
+        
+console.log(`✅ Admin: Loaded ${students.length} students from ${localStorage.getItem('studentsData') ? 'localStorage' : 'data.js'} (${totalPassed} passed)`);
+        
+      } catch (error) {
+        document.getElementById('studentList').innerHTML = 
+          `<div style="text-align:center;padding:4rem;color:var(--danger);">
+            ❌ Error: ${error.message}
+          </div>`;
+        console.error('Load error:', error);
+      }
+    }
+
+    function updateStats(total, passed, loaded) {
+      const passRate = loaded > 0 ? Math.round((passed / loaded) * 100) : 0;
+      document.getElementById('stats').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-number stat-total">${total}</div>
+          <div>Total Students</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number stat-pass">${passed}</div>
+          <div>Passed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number stat-fail">${loaded - passed}</div>
+          <div>Failed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" style="color:${passRate > 70 ? 'var(--success)' : 'var(--danger)'}">
+            ${passRate}%
+          </div>
+          <div>Pass Rate</div>
+        </div>
+      `;
+    }
+
+    function renderStudentsTable(studentsList) {
+      const container = document.getElementById('studentList');
+      container.innerHTML = `
+        <table class="students-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Roll No</th>
+              <th>Name</th>
+              <th>Section</th>
+              <th>Total Marks</th>
+              <th>Percentage</th>
+<th>Result</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${studentsList.map((s, index) => `
+              <tr class="summary-row ${s.allPass ? 'status-pass' : 'status-fail'}" onclick="toggleDetails(${s.id})" style="cursor:pointer;">
+                <td>${index + 1}</td>
+                <td><strong>${s.roll}</strong></td>
+                <td>${s.name}</td>
+                <td>${s.section}</td>
+                <td><strong>${s.totalObtained}/${s.totalMax}</strong></td>
+                <td><strong style="color: ${parseFloat(s.percentage) >= 70 ? 'var(--success)' : 'var(--danger)'}">${s.percentage}%</strong></td>
+                <td>
+                  <span class="${s.allPass ? 'status-pass' : 'status-fail'}">
+                    ${s.allPass ? '✔ PASS' : '✘ FAIL'}
+                  </span>
+                </td>
+                <td>
+                  <button onclick="editStudent('${s.roll}')" class="btn-edit-small" title="Edit">✏️</button>
+                  <button onclick="deleteStudent('${s.roll}')" class="btn-delete-small" title="Delete">🗑️</button>
+                </td>
+              </tr>
+              <tr class="details-row" id="details-${s.id}" style="display:none;">
+                <td colspan="7" style="padding:0;">
+                  <div style="background:rgba(255,255,255,0.02);padding:20px;">
+                    <table class="marks-table">
+                      <thead>
+                        <tr>
+                          <th>Subject</th>
+                          <th>Marks</th>
+                          <th>Grade</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${s.subjects.map(sub => {
+                          const pct = parseFloat(sub.pct);
+                          const grade = pct >= 90 ? 'A+' : pct >= 80 ? 'A' : pct >= 70 ? 'B' : pct >= 60 ? 'C' : pct >= 50 ? 'D' : 'F';
+                          return `
+                            <tr style="${!sub.pass ? 'background:rgba(239,68,68,0.08)' : ''}">
+                              <td><strong>${sub.name}</strong></td>
+                              <td>${sub.marks}/${sub.maxMarks}</td>
+                              <td>${grade}</td>
+                              <td style="color:${sub.pass ? 'var(--success)' : 'var(--danger)'};font-weight:bold;">
+                                ${sub.pass ? 'PASS' : 'FAIL'}
+                              </td>
+                            </tr>`;
+                        }).join('')}
+                        <tr style="font-weight:bold;border-top:2px solid var(--border);background:rgba(245,158,11,0.1);">
+                          <td colspan="1">TOTAL</td>
+                          <td>${s.totalObtained}/${s.totalMax}</td>
+                          <td>${s.percentage}%</td>
+                          <td>${s.allPass ? 'OVERALL PASS' : 'OVERALL FAIL'}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+
+      // Search functionality
+      const searchInput = document.getElementById('studentSearch');
+      searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const rows = container.querySelectorAll('.summary-row');
+        rows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          row.style.display = text.includes(term) ? '' : 'none';
+          const detailsId = parseInt(row.querySelector('td:nth-child(1)').textContent) - 1;
+          const detailsRow = document.getElementById(`details-${detailsId}`);
+          if (detailsRow) detailsRow.style.display = 'none';
+        });
+      });
+    }
+
+    function toggleDetails(id) {
+      const details = document.getElementById(`details-${id}`);
+      if (details) {
+        details.style.display = details.style.display === 'none' ? 'table-row' : 'none';
+      }
+    }
+
+    // Close other details on click
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.summary-row')) {
+        document.querySelectorAll('.details-row').forEach(d => {
+          if (d.style.display === 'table-row' && !d.contains(e.target)) {
+            d.style.display = 'none';
+          }
+        });
+      }
+    });
+
+// Add Student Modal Functions
+function openAddModal() {
+  document.getElementById('addStudentModal').style.display = 'flex';
+  document.getElementById('studentName').focus();
+  updateCalc();
+}
+
+function closeAddModal() {
+  document.getElementById('addStudentModal').style.display = 'none';
+  document.getElementById('addStudentForm').reset();
+  updateCalc();
+}
+
+// Close modal on outside click
+document.getElementById('addStudentModal').addEventListener('click', (e) => {
+  if (e.target.classList.contains('modal-overlay')) closeAddModal();
+});
+
+// Real-time total/percentage calc
+function updateCalc() {
+  const marks = [parseInt(document.getElementById('mark1').value) || 0,
+                 parseInt(document.getElementById('mark2').value) || 0,
+                 parseInt(document.getElementById('mark3').value) || 0,
+                 parseInt(document.getElementById('mark4').value) || 0,
+                 parseInt(document.getElementById('mark5').value) || 0,
+                 parseInt(document.getElementById('mark6').value) || 0];
+  const total = marks.reduce((a,b)=>a+b, 0);
+  const pct = (total / 6).toFixed(1);
+  document.getElementById('totalMarks').value = total + '/600';
+  document.getElementById('percentage').value = pct + '%';
+}
+
+document.querySelectorAll('#mark1, #mark2, #mark3, #mark4, #mark5, #mark6').forEach(input => {
+  input.addEventListener('input', updateCalc);
+});
+
+// Add form submit
+document.getElementById('addStudentForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const name = document.getElementById('studentName').value.trim();
+  const fatherName = document.getElementById('fatherName').value.trim();
+  const section = document.getElementById('studentSection').value;
+  const roll = document.getElementById('studentRoll').value.trim();
+  const marks = [parseInt(document.getElementById('mark1').value), parseInt(document.getElementById('mark2').value),
+                 parseInt(document.getElementById('mark3').value), parseInt(document.getElementById('mark4').value),
+                 parseInt(document.getElementById('mark5').value), parseInt(document.getElementById('mark6').value)];
+
+  if (!name || !roll || marks.some(m => m === undefined || m < 0 || m > 100)) {
+    showMessage('Please fill all fields correctly (marks 0-100).', 'error');
+    return;
+  }
+
+  // Check unique roll
+  const currentData = JSON.parse(localStorage.getItem('studentsData') || '[]');
+  if (currentData.find(s => s.roll_no === roll)) {
+    showMessage('Roll number already exists!', 'error');
+    return;
+  }
+
+  const newStudent = {
+    roll_no: roll,
+    password: roll.slice(-4),
+    name,
+    COURSE: 'BTech',
+    section: section,
+    exam_type: 'Final',
+    subjects: [
+      {name: 'Theory of Automata', marks_obtained: marks[0], total_marks: 100, pass_marks: 40},
+      {name: 'Web Technology', marks_obtained: marks[1], total_marks: 100, pass_marks: 40},
+      {name: 'Design Algorithm', marks_obtained: marks[2], total_marks: 100, pass_marks: 40},
+      {name: 'Aptitude', marks_obtained: marks[3], total_marks: 100, pass_marks: 40},
+      {name: 'Software Engineering', marks_obtained: marks[4], total_marks: 100, pass_marks: 40},
+      {name: 'Python with ML', marks_obtained: marks[5], total_marks: 100, pass_marks: 40}
+    ]
+  };
+
+  currentData.push(newStudent);
+  localStorage.setItem('studentsData', JSON.stringify(currentData));
+
+  showMessage(`✅ Student ${name} (${roll}) added successfully! Refresh table.`, 'success');
+  closeAddModal();
+  loadStudents(); // Refresh table
+});
+
+// Message function
+function showMessage(msg, type = 'success') {
+  const msgDiv = document.getElementById('message');
+  msgDiv.innerHTML = `<div class="${type}">${msg}</div>`;
+  setTimeout(() => msgDiv.innerHTML = '', 5000);
+}
+
+// Delete student
+window.deleteStudent = function(roll) {
+  if (confirm(`Delete student ${roll}?`)) {
+    let data = JSON.parse(localStorage.getItem('studentsData') || '[]');
+    data = data.filter(s => s.roll_no !== roll);
+    localStorage.setItem('studentsData', JSON.stringify(data));
+    showMessage(`✅ ${roll} deleted!`, 'success');
+    loadStudents();
+  }
+};
+
+// Edit student
+// Edit modal functions
+let currentEditRoll = null;
+
+function openEditModal(roll) {
+  currentEditRoll = roll;
+  const student = JSON.parse(localStorage.getItem('studentsData') || '[]').find(s => s.roll_no === roll);
+  if (!student) return;
+  
+  // Populate form
+  document.getElementById('editStudentName').value = student.name || '';
+  document.getElementById('editFatherName').value = student.father_name || '';
+  document.getElementById('editStudentSection').value = student.section || '';
+  document.getElementById('editStudentRoll').value = student.roll_no;
+  document.getElementById('editStudentRoll').disabled = true; // Can't change roll
+  
+  const marks = student.subjects.map(s => s.marks_obtained);
+  ['mark1','mark2','mark3','mark4','mark5','mark6'].forEach((id, i) => {
+    document.getElementById('edit' + id).value = marks[i] || 0;
+  });
+  updateEditCalc();
+  
+  document.getElementById('editStudentModal').style.display = 'flex';
+  document.getElementById('editStudentName').focus();
+}
+
+function closeEditModal() {
+  document.getElementById('editStudentModal').style.display = 'none';
+  document.getElementById('editStudentForm').reset();
+}
+
+function updateEditCalc() {
+  const marks = ['editmark1','editmark2','editmark3','editmark4','editmark5','editmark6'].map(id => parseInt(document.getElementById(id).value) || 0);
+  const total = marks.reduce((a,b)=>a+b, 0);
+  const pct = (total / 6).toFixed(1);
+  document.getElementById('edittotalMarks').value = total + '/600';
+  document.getElementById('editpercentage').value = pct + '%';
+}
+
+document.getElementById('editStudentForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const name = document.getElementById('editStudentName').value.trim();
+  const fatherName = document.getElementById('editFatherName').value.trim();
+  const section = document.getElementById('editStudentSection').value;
+  const marks = ['editmark1','editmark2','editmark3','editmark4','editmark5','editmark6'].map(id => parseInt(document.getElementById(id).value) || 0);
+
+  if (!name || marks.some(m => m < 0 || m > 100)) {
+    showMessage('Please fill correctly (marks 0-100).', 'error');
+    return;
+  }
+
+  let data = JSON.parse(localStorage.getItem('studentsData') || '[]');
+  const index = data.findIndex(s => s.roll_no === currentEditRoll);
+  if (index === -1) {
+    showMessage('Student not found!', 'error');
+    return;
+  }
+
+  data[index] = {
+    ...data[index],
+    name,
+    father_name: fatherName || data[index].father_name,
+    section,
+    subjects: data[index].subjects.map((sub, i) => ({
+      ...sub,
+      marks_obtained: marks[i]
+    }))
+  };
+
+  localStorage.setItem('studentsData', JSON.stringify(data));
+  showMessage(`✅ Updated ${currentEditRoll}!`, 'success');
+  closeEditModal();
+  loadStudents();
+});
+
+window.editStudent = function(roll) {
+  openEditModal(roll);
+};
+
+console.log('🚀 Admin Panel Complete - Edit/Delete in table!');
+  </script>
+</body>
+</html>

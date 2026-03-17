@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Check Result — Haridwar University Result Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#0a0e1a;--surface:#111827;--surface2:#1a2236;--border:rgba(255,255,255,0.07);--primary:#f59e0b;--primary-dark:#d97706;--accent:#3b82f6;--success:#10b981;--fail:#ef4444;--text:#f1f5f9;--muted:#94a3b8;--font-display:'Bebas Neue',sans-serif;--font-body:'Outfit',sans-serif;--radius:14px;--shadow:0 8px 32px rgba(0,0,0,0.4)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+    .bg-grid{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+    .bg-blob{position:fixed;border-radius:50%;filter:blur(100px);z-index:0;pointer-events:none;opacity:0.25}
+    .blob1{width:500px;height:500px;background:#f59e0b;top:-150px;right:-150px}
+    .blob2{width:400px;height:400px;background:#3b82f6;bottom:-100px;left:-100px}
+    .site-header{position:sticky;top:0;z-index:100;background:rgba(10,14,26,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 2rem}
+    .header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
+    .logo{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:1.5rem;letter-spacing:1px}
+    .logo-accent{color:var(--primary)}
+    nav{display:flex;gap:8px}
+    .nav-link{color:var(--muted);text-decoration:none;font-size:0.9rem;font-weight:500;padding:6px 14px;border-radius:8px;transition:all 0.2s}
+    .nav-link:hover,.nav-link.active{color:var(--text);background:var(--surface2)}
+    .page-wrap{position:relative;z-index:1;max-width:680px;margin:60px auto;padding:0 1.5rem}
+    .page-title{font-family:var(--font-display);font-size:2.8rem;letter-spacing:2px;margin-bottom:8px}
+    .page-sub{color:var(--muted);margin-bottom:40px}
+    .search-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:36px;margin-bottom:32px;box-shadow:var(--shadow)}
+    .form-group{margin-bottom:20px}
+    .form-group label{display:block;font-size:0.85rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+    .form-group input,.form-group select{width:100%;padding:13px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font-body);font-size:1rem;outline:none;transition:border-color 0.2s}
+    .form-group input:focus,.form-group select:focus{border-color:var(--primary)}
+    .form-group select option{background:var(--surface2)}
+    .btn-search{width:100%;padding:14px;background:var(--primary);color:#000;font-family:var(--font-body);font-size:1rem;font-weight:700;border:none;border-radius:10px;cursor:pointer;transition:all 0.2s}
+    .btn-search:hover{background:var(--primary-dark)}
+    .error-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--fail);padding:16px 20px;border-radius:10px;margin-top:20px;font-size:0.95rem}
+    .result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);animation:slideUp 0.4s ease}
+    @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .rc-header{padding:32px;text-align:center;position:relative}
+    .rc-body{padding:28px 32px}
+    .marks-table{width:100%;border-collapse:collapse;margin-bottom:24px}
+    .marks-table th{text-align:left;font-size:0.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:1px solid var(--border)}
+    .marks-table td{padding:12px;border-bottom:1px solid var(--border);font-size:0.95rem}
+    .marks-table tr:last-child td{border-bottom:none}
+    .grade-badge{display:inline-block;font-weight:700;font-size:0.8rem;padding:3px 10px;border-radius:6px}
+    .grade-A{background:rgba(16,185,129,0.15);color:#10b981}
+    .grade-B{background:rgba(59,130,246,0.15);color:#3b82f6}
+    .grade-C{background:rgba(245,158,11,0.15);color:#f59e0b}
+    .grade-D{background:rgba(251,146,60,0.15);color:#fb923c}
+    .grade-F{background:rgba(239,68,68,0.15);color:#ef4444}
+    .rc-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+    .summary-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+    .summary-label{font-size:0.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+    .summary-value{font-family:var(--font-display);font-size:1.8rem;color:var(--primary);letter-spacing:1px}
+    .verdict{text-align:center;padding:18px;border-radius:10px;font-family:var(--font-display);font-size:1.5rem;letter-spacing:2px}
+    .verdict.pass{background:rgba(16,185,129,0.12);color:var(--success);border:1px solid rgba(16,185,129,0.3)}
+    .verdict.fail{background:rgba(239,68,68,0.12);color:var(--fail);border:1px solid rgba(239,68,68,0.3)}
+    .btn-print{display:inline-block;background:transparent;color:var(--muted);border:1px solid var(--border);padding:10px 24px;border-radius:8px;font-family:var(--font-body);font-size:0.9rem;cursor:pointer;margin-top:20px;transition:all 0.2s}
+    .btn-print:hover{color:var(--text);border-color:var(--muted)}
+    .site-footer{position:relative;z-index:1;text-align:center;padding:24px;color:var(--muted);font-size:0.85rem;border-top:1px solid var(--border)}
+    @media(max-width:600px){.rc-summary{grid-template-columns:1fr}}
+    @media print{.site-header,.search-card,.btn-print,.bg-grid,.bg-blob{display:none!important}body{background:white;color:black}.result-card{box-shadow:none;border:1px solid #ccc}}
+  </style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-blob blob1"></div>
+<div class="bg-blob blob2"></div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">🎓 <span>Haridwar University <span class="logo-accent">Result Portal</span></span></div>
+    <nav>
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="result.html" class="nav-link active">Check Result</a>
+      <a href="admin.html" class="nav-link">Admin</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <h1 class="page-title">Check Result</h1>
+  <p class="page-sub">Haridwar University — BTech Final Exam 2025-26</p>
+  <div class="search-card">
+    <form id="resultSearchForm">
+      <div class="form-group">
+        <label>Roll Number *</label>
+        <input type="text" id="roll_no" placeholder="e.g. 2024001" maxlength="7" required autofocus/>
+      </div>
+      <div class="form-group">
+        <label>Exam Type *</label>
+        <select id="exam_type" required>
+          <option value="">Select Exam</option>
+          <option value="Final">Final Exam</option>
+        </select>
+      </div>
+      <button type="submit" class="btn-search">🔍 View Result</button>
+    </form>
+  </div>
+  <div id="errorBox" class="error-box" style="display:none"></div>
+  <div id="resultCard" class="result-card" style="display:none"></div>
+  <p id="demoHint" style="color:var(--muted);font-size:0.85rem;margin-top:16px;text-align:center">
+    💡 Enter your Roll Number and select Final Exam to view result
+  </p>
+</div>
+
+<footer class="site-footer">© 2025 Haridwar University Result Portal | BTech 2025-26</footer>
+
+<script>
+const BASE_STUDENTS=[
+  {roll_no:'2024001',name:'Aaradhya',father_name:'Rajesh Sharma',section:'A',subjects:[{name:'Theory of Automata',marks_obtained:85,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:78,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:82,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:88,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:79,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:91,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024002',name:'Ananya',father_name:'Suresh Verma',section:'A',subjects:[{name:'Theory of Automata',marks_obtained:88,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:92,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:76,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:84,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:90,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:87,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024003',name:'Saanvi',father_name:'Mohan Lal',section:'B',subjects:[{name:'Theory of Automata',marks_obtained:72,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:68,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:74,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:70,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:65,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:78,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024004',name:'Mahira',father_name:'Anil Kumar',section:'B',subjects:[{name:'Theory of Automata',marks_obtained:91,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:85,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:88,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:94,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:89,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:92,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024005',name:'Aman',father_name:'Rakesh Singh',section:'C',subjects:[{name:'Theory of Automata',marks_obtained:63,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:58,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:71,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:67,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:72,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:60,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024006',name:'Advika',father_name:'Vinod Gupta',section:'C',subjects:[{name:'Theory of Automata',marks_obtained:84,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:79,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:86,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:81,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:88,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:83,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024007',name:'Mohan',father_name:'Sunil Yadav',section:'D',subjects:[{name:'Theory of Automata',marks_obtained:77,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:82,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:75,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:79,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:84,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:80,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024008',name:'Diya',father_name:'Ramesh Mishra',section:'A',subjects:[{name:'Theory of Automata',marks_obtained:93,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:87,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:90,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:95,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:88,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:94,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024009',name:'Kayra',father_name:'Dinesh Tiwari',section:'B',subjects:[{name:'Theory of Automata',marks_obtained:69,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:73,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:66,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:71,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:68,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:74,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024010',name:'Karan',father_name:'Mahesh Joshi',section:'C',subjects:[{name:'Theory of Automata',marks_obtained:86,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:91,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:83,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:88,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:92,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:85,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024011',name:'Mishika',father_name:'Naresh Pandey',section:'D',subjects:[{name:'Theory of Automata',marks_obtained:78,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:74,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:80,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:76,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:82,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:79,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024012',name:'Ruhi',father_name:'Umesh Chandra',section:'A',subjects:[{name:'Theory of Automata',marks_obtained:90,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:86,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:88,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:92,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:87,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:91,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024013',name:'Aanya',father_name:'Kamlesh Dubey',section:'B',subjects:[{name:'Theory of Automata',marks_obtained:82,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:77,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:84,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:79,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:85,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:81,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024014',name:'Shanaya',father_name:'Ganesh Prasad',section:'C',subjects:[{name:'Theory of Automata',marks_obtained:95,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:89,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:92,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:97,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:90,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:93,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024015',name:'Vamika',father_name:'Harish Negi',section:'D',subjects:[{name:'Theory of Automata',marks_obtained:71,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:67,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:73,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:69,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:75,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:70,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024016',name:'Ahana',father_name:'Prakash Rawat',section:'A',subjects:[{name:'Theory of Automata',marks_obtained:87,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:82,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:89,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:84,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:90,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:86,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024017',name:'Naisha',father_name:'Devesh Bhatt',section:'B',subjects:[{name:'Theory of Automata',marks_obtained:76,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:80,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:73,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:77,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:82,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:78,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024018',name:'Ishanvi',father_name:'Lokesh Bajpai',section:'C',subjects:[{name:'Theory of Automata',marks_obtained:92,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:88,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:91,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:94,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:89,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:93,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024019',name:'Vyomika',father_name:'Mukesh Saxena',section:'D',subjects:[{name:'Theory of Automata',marks_obtained:83,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:78,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:85,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:80,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:86,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:82,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024020',name:'Sara',father_name:'Vivek Srivastava',section:'A',subjects:[{name:'Theory of Automata',marks_obtained:96,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:90,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:93,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:98,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:91,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:95,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024021',name:'Rida',father_name:'Rizwan Khan',section:'B',subjects:[{name:'Theory of Automata',marks_obtained:74,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:69,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:76,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:72,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:78,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:73,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024022',name:'Parina',father_name:'Farhan Ansari',section:'C',subjects:[{name:'Theory of Automata',marks_obtained:89,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:84,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:87,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:91,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:86,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:90,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024023',name:'Zara',father_name:'Salman Sheikh',section:'D',subjects:[{name:'Theory of Automata',marks_obtained:80,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:75,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:82,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:77,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:83,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:79,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024024',name:'Mayra',father_name:'Imran Qureshi',section:'A',subjects:[{name:'Theory of Automata',marks_obtained:93,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:89,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:91,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:95,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:90,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:94,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024025',name:'Yashvi',father_name:'Akram Ali',section:'B',subjects:[{name:'Theory of Automata',marks_obtained:85,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:80,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:87,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:83,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:88,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:84,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024026',name:'Aarav',father_name:'Santosh Pal',section:'A',subjects:[{name:'Theory of Automata',marks_obtained:70,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:65,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:72,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:68,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:74,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:69,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024027',name:'Vihaan',father_name:'Rajendra Thakur',section:'A',subjects:[{name:'Theory of Automata',marks_obtained:88,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:83,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:86,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:90,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:85,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:89,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024028',name:'Advait',father_name:'Bhupesh Chauhan',section:'B',subjects:[{name:'Theory of Automata',marks_obtained:75,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:79,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:72,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:76,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:81,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:77,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024029',name:'Aryan',father_name:'Yogesh Trivedi',section:'B',subjects:[{name:'Theory of Automata',marks_obtained:91,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:87,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:89,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:93,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:88,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:92,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024030',name:'Kabir',father_name:'Pradeep Maurya',section:'C',subjects:[{name:'Theory of Automata',marks_obtained:66,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:61,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:68,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:64,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:70,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:65,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024031',name:'Ishaan',father_name:'Virendra Nath',section:'C',subjects:[{name:'Theory of Automata',marks_obtained:84,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:79,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:82,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:86,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:81,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:85,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024032',name:'Kiaan',father_name:'Brijesh Gautam',section:'D',subjects:[{name:'Theory of Automata',marks_obtained:73,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:77,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:70,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:74,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:79,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:75,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024033',name:'Dhruv',father_name:'Ashok Sahu',section:'D',subjects:[{name:'Theory of Automata',marks_obtained:90,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:86,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:88,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:92,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:87,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:91,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024034',name:'Ayaan',father_name:'Deepak Shukla',section:'A',subjects:[{name:'Theory of Automata',marks_obtained:67,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:63,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:69,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:65,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:71,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:66,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024035',name:'Rudra',father_name:'Ajay Dwivedi',section:'B',subjects:[{name:'Theory of Automata',marks_obtained:87,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:82,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:85,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:89,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:84,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:88,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024036',name:'Shivansh',father_name:'Sanjay Tripathi',section:'C',subjects:[{name:'Theory of Automata',marks_obtained:76,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:80,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:73,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:77,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:82,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:78,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024037',name:'Naksh',father_name:'Vijay Dixit',section:'C',subjects:[{name:'Theory of Automata',marks_obtained:93,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:89,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:91,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:95,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:90,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:94,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024038',name:'Advik',father_name:'Manoj Awasthi',section:'D',subjects:[{name:'Theory of Automata',marks_obtained:68,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:64,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:70,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:66,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:72,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:67,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024039',name:'Reyansh',father_name:'Alok Tomar',section:'D',subjects:[{name:'Theory of Automata',marks_obtained:86,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:81,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:84,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:88,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:83,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:87,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024040',name:'Arth',father_name:'Pankaj Misra',section:'A',subjects:[{name:'Theory of Automata',marks_obtained:79,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:83,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:76,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:80,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:85,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:81,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024041',name:'Divit',father_name:'Ramakant Rao',section:'B',subjects:[{name:'Theory of Automata',marks_obtained:92,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:88,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:90,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:94,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:89,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:93,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024042',name:'Atharv',father_name:'Surendra Yadav',section:'C',subjects:[{name:'Theory of Automata',marks_obtained:71,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:67,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:73,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:69,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:75,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:70,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024043',name:'Jash',father_name:'Harender Singh',section:'D',subjects:[{name:'Theory of Automata',marks_obtained:85,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:80,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:83,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:87,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:82,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:86,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024044',name:'Vivaan',father_name:'Mahendra Kumar',section:'A',subjects:[{name:'Theory of Automata',marks_obtained:78,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:82,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:75,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:79,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:84,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:80,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024045',name:'Golu Kumar',father_name:'Rajeev Soni',section:'B',subjects:[{name:'Theory of Automata',marks_obtained:63,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:59,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:65,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:61,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:67,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:62,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024046',name:'Ravi Kumar',father_name:'Nagendra Prasad',section:'C',subjects:[{name:'Theory of Automata',marks_obtained:89,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:85,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:87,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:91,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:86,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:90,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024047',name:'Pratik Maurya',father_name:'Devendra Gupta',section:'D',subjects:[{name:'Theory of Automata',marks_obtained:72,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:68,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:74,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:70,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:76,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:71,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024048',name:'Abhijeet Singh',father_name:'Bharat Lal',section:'C',subjects:[{name:'Theory of Automata',marks_obtained:94,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:90,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:92,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:96,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:91,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:95,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024049',name:'Rahul Kumar',father_name:'Ratan Kumar',section:'D',subjects:[{name:'Theory of Automata',marks_obtained:65,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:61,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:67,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:63,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:69,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:64,total_marks:100,pass_marks:40}]},
+  {roll_no:'2024050',name:'Rishi',father_name:'Kailash Nath',section:'A',subjects:[{name:'Theory of Automata',marks_obtained:88,total_marks:100,pass_marks:40},{name:'Web Technology',marks_obtained:84,total_marks:100,pass_marks:40},{name:'Design Algorithm',marks_obtained:86,total_marks:100,pass_marks:40},{name:'Aptitude',marks_obtained:90,total_marks:100,pass_marks:40},{name:'Software Engineering',marks_obtained:85,total_marks:100,pass_marks:40},{name:'Python with ML',marks_obtained:89,total_marks:100,pass_marks:40}]}
+];
+
+// Add exam_type to base students
+const STUDENTS = BASE_STUDENTS.map(s=>({...s, exam_type:'Final', class:'BTech'}));
+
+// Merge base 50 students with any admin-added students from localStorage
+(function init(){
+  try{
+    const raw = localStorage.getItem('studentsData');
+    if(!raw){ localStorage.setItem('studentsData', JSON.stringify(STUDENTS)); return; }
+    const saved = JSON.parse(raw);
+    // Find any admin-added students (roll > 2024050)
+    const adminAdded = saved.filter(s => {
+      const num = parseInt((s.roll_no||'').replace('2024',''));
+      return num > 50;
+    });
+    // Always use fresh base 50 + keep admin-added on top
+    const merged = [...STUDENTS, ...adminAdded];
+    localStorage.setItem('studentsData', JSON.stringify(merged));
+  } catch(e){
+    localStorage.setItem('studentsData', JSON.stringify(STUDENTS));
+  }
+})();
+
+function getStudents(){
+  try{ const d=JSON.parse(localStorage.getItem('studentsData')||'[]'); return d.length?d:STUDENTS; }catch(e){return STUDENTS;}
+}
+function getGrade(p){
+  if(p>=90)return{letter:'A+',cls:'grade-A'};
+  if(p>=80)return{letter:'A',cls:'grade-A'};
+  if(p>=70)return{letter:'B',cls:'grade-B'};
+  if(p>=60)return{letter:'C',cls:'grade-C'};
+  if(p>=50)return{letter:'D',cls:'grade-D'};
+  return{letter:'F',cls:'grade-F'};
+}
+
+document.getElementById('resultSearchForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  const rollNo=document.getElementById('roll_no').value.trim();
+  const examType=document.getElementById('exam_type').value;
+  const btn=this.querySelector('.btn-search');
+  const errorBox=document.getElementById('errorBox');
+  const resultCard=document.getElementById('resultCard');
+  errorBox.style.display='none'; resultCard.style.display='none';
+  btn.textContent='🔍 Searching...'; btn.disabled=true;
+
+  if(!rollNo||!/^2024\d{3}$/.test(rollNo)||examType!=='Final'){
+    errorBox.innerHTML='⚠️ Enter a valid 7-digit roll number (e.g. 2024001) and select Final Exam.';
+    errorBox.style.display='block'; btn.textContent='🔍 View Result'; btn.disabled=false; return;
+  }
+
+  const student=getStudents().find(s=>s.roll_no===rollNo);
+  if(!student||!student.subjects){
+    errorBox.innerHTML=`⚠️ No result found for <strong>${rollNo}</strong>. Please check the roll number.`;
+    errorBox.style.display='block'; btn.textContent='🔍 View Result'; btn.disabled=false; return;
+  }
+
+  let tot=0,max=0,pass=true;
+  const rows=student.subjects.map(s=>{
+    const p=(s.marks_obtained/s.total_marks*100).toFixed(1);
+    const g=getGrade(parseFloat(p));
+    const ok=s.marks_obtained>=s.pass_marks;
+    if(!ok)pass=false; tot+=s.marks_obtained; max+=s.total_marks;
+    return `<tr><td>${s.name}</td><td><strong>${s.marks_obtained}</strong></td><td>${s.total_marks}</td><td>${s.pass_marks}</td><td><span class="grade-badge ${g.cls}">${g.letter}</span></td><td>${ok?'<span style="color:var(--success)">✔ Pass</span>':'<span style="color:var(--fail)">✘ Fail</span>'}</td></tr>`;
+  }).join('');
+  const pct=(tot/max*100).toFixed(1);
+  const og=getGrade(parseFloat(pct));
+
+  resultCard.innerHTML=`
+    <div class="rc-header">
+      <div style="position:absolute;top:24px;right:24px;background:linear-gradient(135deg,#3b82f6,#60a5fa);color:#fff;padding:16px 20px;border-radius:12px;box-shadow:0 12px 32px rgba(59,130,246,0.5);min-width:120px;text-align:center;">
+        <div style="font-size:0.65rem;color:#bfdbfe;font-weight:700;letter-spacing:1.5px;margin-bottom:4px;">ROLL NO</div>
+        <div style="font-family:var(--font-display);font-size:1.9rem;letter-spacing:2px;">${rollNo}</div>
+      </div>
+      <div style="font-family:var(--font-display);font-size:2.8rem;font-weight:800;letter-spacing:3px;margin-bottom:8px;">${student.name}</div>
+      <div style="font-size:1.1rem;font-weight:600;margin-bottom:6px;">Father: <strong>${student.father_name||'N/A'}</strong></div>
+      <div style="font-size:0.9rem;color:var(--primary);letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:16px;border-bottom:2px solid rgba(245,158,11,0.3);padding-bottom:12px;">HARIDWAR UNIVERSITY — Final Semester 2025-26</div>
+      <div style="font-size:1rem;color:var(--muted);">BTech | Section ${student.section}</div>
+    </div>
+    <div class="rc-body">
+      <table class="marks-table"><thead><tr><th>Subject</th><th>Obtained</th><th>Max</th><th>Pass Marks</th><th>Grade</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="rc-summary">
+        <div class="summary-box"><div class="summary-label">Total</div><div class="summary-value">${tot}/${max}</div></div>
+        <div class="summary-box"><div class="summary-label">Percentage</div><div class="summary-value">${pct}%</div></div>
+        <div class="summary-box"><div class="summary-label">Grade</div><div class="summary-value">${og.letter}</div></div>
+      </div>
+      <div class="verdict ${pass?'pass':'fail'}">${pass?'✔ PASS — '+og.letter:'✘ FAIL'}</div>
+      <button class="btn-print" onclick="window.print()">🖨️ Print / Save PDF</button>
+    </div>`;
+  resultCard.style.display='block';
+  document.getElementById('demoHint').style.display='none';
+  btn.textContent='🔍 View Result'; btn.disabled=false;
+});
+</script>
+</body>
+</html>
